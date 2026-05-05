@@ -1,4 +1,4 @@
-# mssql-mcp
+# SQL and File MCP
 
 An MCP (Model Context Protocol) server that gives LLM clients access to a SQL Server database and the local filesystem.
 
