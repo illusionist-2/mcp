@@ -83,6 +83,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         }
       },
       {
+        name: "modify_file",
+        description: "Replace occurrences of a source string with a target string in a text file",
+        inputSchema: {
+          type: "object",
+          properties: {
+            path: { type: "string", description: "Path to the file to modify" },
+            source: { type: "string", description: "The exact text to search for (matched literally, not as a regex)" },
+            target: { type: "string", description: "The text to replace it with" },
+            replace_all: { type: "boolean", description: "If true, replace every occurrence; if false, replace only the first (default: true)" }
+          },
+          required: ["path", "source", "target"]
+        }
+      },
+      {
         name: "delete_file",
         description: "Delete a file",
         inputSchema: {
@@ -208,6 +222,36 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       await fs.writeFile(args.path, args.content, { encoding: "utf-8", flag });
       return {
         content: [{ type: "text", text: `File written: ${args.path}` }]
+      };
+    }
+
+    case "modify_file": {
+      if (typeof args.source !== "string" || args.source === "") {
+        throw new Error("`source` must be a non-empty string");
+      }
+
+      const original = await fs.readFile(args.path, "utf-8");
+      if (!original.includes(args.source)) {
+        throw new Error(`Source string not found in ${args.path}; file unchanged`);
+      }
+
+      const replaceAll = args.replace_all ?? true;
+      const updated = replaceAll
+        ? original.split(args.source).join(args.target)
+        : original.replace(args.source, args.target);
+
+      const replacements = replaceAll
+        ? original.split(args.source).length - 1
+        : 1;
+
+      await fs.writeFile(args.path, updated, "utf-8");
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Replaced ${replacements} occurrence(s) in ${args.path}`
+          }
+        ]
       };
     }
 
