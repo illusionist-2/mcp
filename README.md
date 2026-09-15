@@ -48,6 +48,7 @@ An MCP (Model Context Protocol) server that gives LLM clients access to a SQL Se
 |------|-------------|
 | `read_file` | Read a text file and return its contents. |
 | `write_file` | Write (or append) text to a file. Creates the file if it doesn't exist. |
+| `modify_file` | Replace a source string with a target string in a text file. Matches literally (not a regex); replaces every occurrence unless `replace_all: false`. |
 | `delete_file` | Delete a file. |
 | `copy_file` | Copy a file from source to destination. |
 | `move_file` | Move or rename a file or directory. |
